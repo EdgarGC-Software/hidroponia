@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hidroponía Indoor</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f0;
+      color: #1b4332;
+    }
+
+    header {
+      background: #1b4332;
+      color: white;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 { font-size: 22px; }
+
+    #conexion {
+      font-size: 13px;
+      background: #2d6a4f;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    #conexion.online  { background: #52b788; }
+    #conexion.offline { background: #e63946; }
+
+    main {
+      max-width: 1000px;
+      margin: 24px auto;
+      padding: 0 16px;
+    }
+
+    h2 {
+      font-size: 16px;
+      color: #2d6a4f;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .grid-sensores {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      border: 1px solid #d8f3dc;
+    }
+
+    .card.alerta { border-color: #e63946; background: #fff5f5; }
+
+    .card .icono { font-size: 28px; margin-bottom: 8px; }
+
+    .card .valor {
+      font-size: 32px;
+      font-weight: bold;
+      color: #1b4332;
+    }
+
+    .card .unidad { font-size: 14px; color: #6c757d; margin-left: 4px; }
+
+    .card .etiqueta {
+      font-size: 13px;
+      color: #6c757d;
+      margin-top: 6px;
+    }
+
+    .card .alerta-texto {
+      font-size: 12px;
+      color: #e63946;
+      margin-top: 6px;
+      font-weight: bold;
+    }
+
+    .controles {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .control-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      border: 1px solid #d8f3dc;
+    }
+
+    .control-card h3 { font-size: 15px; color: #2d6a4f; }
+
+    .indicador {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #dee2e6;
+      transition: background 0.3s;
+    }
+
+    .indicador.on { background: #52b788; }
+
+    .btn-group { display: flex; gap: 8px; }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      transition: opacity 0.2s;
+    }
+
+    button:hover { opacity: 0.85; }
+
+    .btn-on  { background: #2d6a4f; color: white; }
+    .btn-off { background: #dee2e6; color: #1b4332; }
+
+    .historial-tabla {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #d8f3dc;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th {
+      background: #2d6a4f;
+      color: white;
+      padding: 10px 14px;
+      text-align: left;
+    }
+
+    td { padding: 9px 14px; border-bottom: 1px solid #f0f4f0; }
+
+    tr:last-child td { border-bottom: none; }
+    tr:nth-child(even) td { background: #f8fff8; }
+
+    #ultima-actualizacion {
+      text-align: center;
+      font-size: 12px;
+      color: #6c757d;
+      margin-top: 8px;
+      margin-bottom: 24px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🌱 Hidroponía Indoor</h1>
+  <span id="conexion">Conectando...</span>
+</header>
+
+<main>
+
+  <h2>Sensores en tiempo real</h2>
+  <div class="grid-sensores">
+    <div class="card" id="card-distancia">
+      <div class="icono">💧</div>
+      <div><span class="valor" id="val-distancia">--</span><span class="unidad">cm</span></div>
+      <div class="etiqueta">Nivel de agua</div>
+      <div class="alerta-texto" id="alerta-distancia"></div>
+    </div>
+    <div class="card" id="card-temperatura">
+      <div class="icono">🌡️</div>
+      <div><span class="valor" id="val-temperatura">--</span><span class="unidad">°C</span></div>
+      <div class="etiqueta">Temperatura</div>
+    </div>
+    <div class="card" id="card-humedad">
+      <div class="icono">💦</div>
+      <div><span class="valor" id="val-humedad">--</span><span class="unidad">%</span></div>
+      <div class="etiqueta">Humedad</div>
+    </div>
+    <div class="card" id="card-aire">
+      <div class="icono">🌬️</div>
+      <div><span class="valor" id="val-aire">--</span></div>
+      <div class="etiqueta">Calidad del aire</div>
+      <div class="alerta-texto" id="alerta-aire"></div>
+    </div>
+    <div class="card" id="card-luz">
+      <div class="icono">☀️</div>
+      <div><span class="valor" id="val-luz">--</span></div>
+      <div class="etiqueta">Intensidad de luz</div>
+    </div>
+  </div>
+
+  <p id="ultima-actualizacion">Esperando datos del ESP32...</p>
+
+  <h2>Control de actuadores</h2>
+  <div class="controles">
+    <div class="control-card">
+      <h3>Bomba de agua</h3>
+      <div class="indicador" id="ind-bomba"></div>
+      <div class="btn-group">
+        <button class="btn-on"  onclick="controlar('bomba', true)">Encender</button>
+        <button class="btn-off" onclick="controlar('bomba', false)">Apagar</button>
+      </div>
+    </div>
+    <div class="control-card">
+      <h3>Luz LED</h3>
+      <div class="indicador" id="ind-led"></div>
+      <div class="btn-group">
+        <button class="btn-on"  onclick="controlar('led', true)">Encender</button>
+        <button class="btn-off" onclick="controlar('led', false)">Apagar</button>
+      </div>
+    </div>
+  </div>
+
+  <h2>Historial de lecturas</h2>
+  <div class="historial-tabla">
+    <table>
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Distancia (cm)</th>
+          <th>Temperatura (°C)</th>
+          <th>Humedad (%)</th>
+          <th>Calidad aire</th>
+          <th>Luz</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-historial">
+        <tr><td colspan="6" style="text-align:center;color:#6c757d">Cargando...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</main>
+
+<script>
+  const SERVER = ''; // Vacío = usa el mismo servidor que sirve el HTML
+
+  async function controlar(actuador, encender) {
+    const body = {};
+    body[actuador] = encender;
+    await fetch(`${SERVER}/control`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    actualizarEstado();
+  }
+
+  async function actualizarEstado() {
+    try {
+      const res  = await fetch(`${SERVER}/estado`);
+      const data = await res.json();
+
+      document.getElementById('ind-bomba').className = 'indicador' + (data.bomba ? ' on' : '');
+      document.getElementById('ind-led').className   = 'indicador' + (data.led   ? ' on' : '');
+
+      document.getElementById('conexion').textContent = 'En línea';
+      document.getElementById('conexion').className   = 'online';
+    } catch {
+      document.getElementById('conexion').textContent = 'Sin conexión';
+      document.getElementById('conexion').className   = 'offline';
+    }
+  }
+
+  async function actualizarLecturas() {
+    try {
+      const res  = await fetch(`${SERVER}/lecturas`);
+      const data = await res.json();
+
+      if (!data.distancia) return;
+
+      document.getElementById('val-distancia').textContent  = data.distancia?.toFixed(1)  ?? '--';
+      document.getElementById('val-temperatura').textContent = data.temperatura?.toFixed(1) ?? '--';
+      document.getElementById('val-humedad').textContent    = data.humedad?.toFixed(1)     ?? '--';
+      document.getElementById('val-aire').textContent       = data.calidadAire             ?? '--';
+      document.getElementById('val-luz').textContent        = data.luz                     ?? '--';
+
+      // Alerta nivel de agua
+      const cardDist   = document.getElementById('card-distancia');
+      const alertaDist = document.getElementById('alerta-distancia');
+      if (data.distancia > 20) {
+        cardDist.classList.add('alerta');
+        alertaDist.textContent = '¡Nivel bajo!';
+      } else {
+        cardDist.classList.remove('alerta');
+        alertaDist.textContent = '';
+      }
+
+      // Alerta calidad del aire
+      const cardAire   = document.getElementById('card-aire');
+      const alertaAire = document.getElementById('alerta-aire');
+      if (data.calidadAire > 2000) {
+        cardAire.classList.add('alerta');
+        alertaAire.textContent = '¡Aire contaminado!';
+      } else {
+        cardAire.classList.remove('alerta');
+        alertaAire.textContent = '';
+      }
+
+      const ahora = new Date().toLocaleTimeString('es-MX');
+      document.getElementById('ultima-actualizacion').textContent = 'Última actualización: ' + ahora;
+
+    } catch (e) {
+      console.error('Error lecturas:', e);
+    }
+  }
+
+  async function actualizarHistorial() {
+    try {
+      const res  = await fetch(`${SERVER}/historial`);
+      const rows = await res.json();
+      const tbody = document.getElementById('tabla-historial');
+
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#6c757d">Sin datos aún</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = rows.map(r => `
+        <tr>
+          <td>${new Date(r.fecha).toLocaleString('es-MX')}</td>
+          <td>${r.distancia?.toFixed(1) ?? '--'}</td>
+          <td>${r.temperatura?.toFixed(1) ?? '--'}</td>
+          <td>${r.humedad?.toFixed(1) ?? '--'}</td>
+          <td>${r.calidad_aire ?? '--'}</td>
+          <td>${r.luz ?? '--'}</td>
+        </tr>
+      `).join('');
+    } catch (e) {
+      console.error('Error historial:', e);
+    }
+  }
+
+  // Actualiza todo al cargar
+  actualizarEstado();
+  actualizarLecturas();
+  actualizarHistorial();
+
+  // Actualiza automáticamente
+  setInterval(actualizarEstado,   2000);
+  setInterval(actualizarLecturas, 5000);
+  setInterval(actualizarHistorial, 30000);
+</script>
+
+</body>
+</html>

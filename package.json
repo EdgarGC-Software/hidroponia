@@ -1,0 +1,19 @@
+{
+  "name": "hidroponia-indoor",
+  "version": "1.0.0",
+  "description": "Sistema IoT de monitoreo y control para hidroponía",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "mysql2": "^3.6.0"
+  },
+  "devDependencies": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
