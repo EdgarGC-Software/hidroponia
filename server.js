@@ -13,18 +13,18 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ─── Conexión MySQL ───────────────────────────────────────────
 
 
-// const db = mysql.createConnection({
-//  host:     process.env.DB_HOST     || 'localhost',
-//  user:     process.env.DB_USER     || 'root',
-//  password: process.env.DB_PASS     || '',
-//  database: process.env.DB_NAME     || 'hidroponia',
-//  port:     process.env.DB_PORT     || 3306
-//});
-//
-//db.connect(err => {
-//  if (err) console.error('Error MySQL:', err);
-//  else console.log('MySQL conectado');
-//});
+ const db = mysql.createConnection({
+  host:     process.env.DB_HOST     || 'localhost',
+  user:     process.env.DB_USER     || 'root',
+  password: process.env.DB_PASS     || '',
+  database: process.env.DB_NAME     || 'hidroponia',
+  port:     process.env.DB_PORT     || 3306
+});
+
+db.connect(err => {
+  if (err) console.error('Error MySQL:', err);
+  else console.log('MySQL conectado');
+});
 
 // ─── Estado de actuadores ─────────────────────────────────────
 let estado = { bomba: false, led: false };
@@ -40,11 +40,11 @@ app.post('/datos', (req, res) => {
   ultimaLectura = { distancia, temperatura, humedad, calidadAire, luz };
 
   // Guardar en MySQL
-//  db.query(
-//    'INSERT INTO lecturas (distancia, temperatura, humedad, calidad_aire, luz) VALUES (?,?,?,?,?)',
-//    [distancia, temperatura, humedad, calidadAire, luz],
-//    err => { if (err) console.error('Error MySQL:', err); }
-//  );
+  db.query(
+    'INSERT INTO lecturas (distancia, temperatura, humedad, calidad_aire, luz) VALUES (?,?,?,?,?)',
+    [distancia, temperatura, humedad, calidadAire, luz],
+    err => { if (err) console.error('Error MySQL:', err); }
+  );
 
   res.json({ ok: true });
 });
