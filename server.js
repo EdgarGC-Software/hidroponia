@@ -65,7 +65,14 @@ app.post('/control', (req, res) => {
 
 // Web consulta última lectura de sensores
 app.get('/lecturas', (req, res) => {
-  res.json(ultimaLectura);
+  db.query(
+    'SELECT * FROM lecturas ORDER BY fecha DESC LIMIT 1',
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: err.message });
+      if (rows.length === 0) return res.json({});
+      res.json(rows[0]);
+    }
+  );
 });
 
 // Web consulta historial
