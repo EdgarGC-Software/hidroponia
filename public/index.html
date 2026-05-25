@@ -202,11 +202,6 @@
       <div class="etiqueta">Calidad del aire</div>
       <div class="alerta-texto" id="alerta-aire"></div>
     </div>
-    <div class="card" id="card-luz">
-      <div class="icono"></div>
-      <div><span class="valor" id="val-luz">--</span></div>
-      <div class="etiqueta">Intensidad de luz</div>
-    </div>
   </div>
 
   <p id="ultima-actualizacion">Esperando datos del ESP32...</p>
@@ -221,14 +216,6 @@
         <button class="btn-off" onclick="controlar('bomba', false)">Apagar</button>
       </div>
     </div>
-    <div class="control-card">
-      <h3>Luz LED</h3>
-      <div class="indicador" id="ind-led"></div>
-      <div class="btn-group">
-        <button class="btn-on"  onclick="controlar('led', true)">Encender</button>
-        <button class="btn-off" onclick="controlar('led', false)">Apagar</button>
-      </div>
-    </div>
   </div>
 
   <h2>Historial de lecturas</h2>
@@ -241,11 +228,10 @@
           <th>Temperatura (°C)</th>
           <th>Humedad (%)</th>
           <th>Calidad aire</th>
-          <th>Luz</th>
         </tr>
       </thead>
       <tbody id="tabla-historial">
-        <tr><td colspan="6" style="text-align:center;color:#6c757d">Cargando...</td></tr>
+        <tr><td colspan="5" style="text-align:center;color:#6c757d">Cargando...</td></tr>
       </tbody>
     </table>
   </div>
@@ -253,7 +239,7 @@
 </main>
 
 <script>
-  const SERVER = ''; // Vacío = usa el mismo servidor que sirve el HTML
+  const SERVER = '';
 
   async function controlar(actuador, encender) {
     const body = {};
@@ -272,7 +258,6 @@
       const data = await res.json();
 
       document.getElementById('ind-bomba').className = 'indicador' + (data.bomba ? ' on' : '');
-      document.getElementById('ind-led').className   = 'indicador' + (data.led   ? ' on' : '');
 
       document.getElementById('conexion').textContent = 'En línea';
       document.getElementById('conexion').className   = 'online';
@@ -289,11 +274,10 @@
 
       if (!data.distancia) return;
 
-      document.getElementById('val-distancia').textContent  = data.distancia?.toFixed(1)  ?? '--';
+      document.getElementById('val-distancia').textContent   = data.distancia?.toFixed(1)  ?? '--';
       document.getElementById('val-temperatura').textContent = data.temperatura?.toFixed(1) ?? '--';
-      document.getElementById('val-humedad').textContent    = data.humedad?.toFixed(1)     ?? '--';
-      document.getElementById('val-aire').textContent       = data.calidadAire             ?? '--';
-      document.getElementById('val-luz').textContent        = data.luz                     ?? '--';
+      document.getElementById('val-humedad').textContent     = data.humedad?.toFixed(1)     ?? '--';
+      document.getElementById('val-aire').textContent        = data.calidadAire             ?? '--';
 
       // Alerta nivel de agua
       const cardDist   = document.getElementById('card-distancia');
@@ -332,7 +316,7 @@
       const tbody = document.getElementById('tabla-historial');
 
       if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#6c757d">Sin datos aún</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#6c757d">Sin datos aún</td></tr>';
         return;
       }
 
@@ -343,7 +327,6 @@
           <td>${r.temperatura?.toFixed(1) ?? '--'}</td>
           <td>${r.humedad?.toFixed(1) ?? '--'}</td>
           <td>${r.calidad_aire ?? '--'}</td>
-          <td>${r.luz ?? '--'}</td>
         </tr>
       `).join('');
     } catch (e) {
@@ -351,14 +334,12 @@
     }
   }
 
-  // Actualiza todo al cargar
   actualizarEstado();
   actualizarLecturas();
   actualizarHistorial();
 
-  // Actualiza automáticamente
-  setInterval(actualizarEstado,   2000);
-  setInterval(actualizarLecturas, 5000);
+  setInterval(actualizarEstado,    2000);
+  setInterval(actualizarLecturas,  5000);
   setInterval(actualizarHistorial, 30000);
 </script>
 
