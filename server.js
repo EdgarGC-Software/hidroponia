@@ -70,7 +70,15 @@ app.get('/lecturas', (req, res) => {
     (err, rows) => {
       if (err) return res.status(500).json({ error: err.message });
       if (rows.length === 0) return res.json({});
-      res.json(rows[0]);
+      const r = rows[0];
+      res.json({
+        distancia:   r.distancia,
+        temperatura: r.temperatura,
+        humedad:     r.humedad,
+        calidadAire: r.calidad_aire,  //
+        luz:         r.luz,
+        fecha:       r.fecha
+      });
     }
   );
 });
